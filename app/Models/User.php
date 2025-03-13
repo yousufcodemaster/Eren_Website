@@ -99,9 +99,7 @@ class User extends Authenticatable
             return false;
         }
 
-        $count = ResellerClient::on('reseller')
-                              ->where('reseller_id', $this->id)
-                              ->count();
+        $count = $this->clients()->count();
         
         return $count < $this->max_clients;
     }
@@ -115,9 +113,7 @@ class User extends Authenticatable
             return 0;
         }
         
-        $count = ResellerClient::on('reseller')
-                              ->where('reseller_id', $this->id)
-                              ->count();
+        $count = $this->clients()->count();
         
         return $this->max_clients - $count;
     }

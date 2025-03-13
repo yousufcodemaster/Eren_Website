@@ -10,11 +10,52 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    public function index()
+    /**
+     * Display a listing of the users.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function index(Request $request)
     {
-        $users = User::latest()->paginate(10);
-        $resellers = User::where('premium_type', 'Reseller')->with('clients')->get();
-        return view('admin.users', compact('users', 'resellers'));
+        try {
+            $query = User::query();
+            
+            // Filter by role
+            if ($request->has('role') && $request->role != 'all') {
+                $query->where('role', $request->role);
+            }
+            
+            // Filter by premium type
+            if ($request->has('premium_type') && $request->premium_type != 'all') {
+                if ($request->premium_type === 'none') {
+                    $query->whereNull('premium_type');
+                } else {
+                    $query->where('premium_type', $request->premium_type);
+                }
+            }
+            
+            // Search by name or email
+            if ($request->has('search') && !empty($request->search)) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
+            }
+            
+            $users = $query->orderBy('created_at', 'desc')->paginate(15);
+            
+            return view('admin.users', compact('users'));
+        } catch (\Exception $e) {
+            // Log the error
+            \Log::error('Error in user index: ' . $e->getMessage());
+            
+            // Return view with empty data
+            return view('admin.users', [
+                'users' => collect(),
+                'error' => 'Could not retrieve users. Please ensure the database is properly set up.'
+            ]);
+        }
     }
 
     public function store(Request $request)

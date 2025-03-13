@@ -193,20 +193,30 @@ class PanelUploadController extends Controller
      */
     public function statistics()
     {
-        $totalDownloads = Download::count();
-        $activeDownloads = Download::where('is_active', true)->count();
-        
-        $downloadsByType = Download::select('type', DB::raw('count(*) as count'))
-            ->groupBy('type')
-            ->get();
+        try {
+            $totalDownloads = Download::count();
+            $downloadsByMonth = Download::select(DB::raw('TO_CHAR(created_at, \'YYYY-MM\') as month'), DB::raw('count(*) as count'))
+                ->where('created_at', '>=', now()->subMonths(12))
+                ->groupBy('month')
+                ->orderBy('month', 'asc')
+                ->get();
+                
+            $downloadsByType = Download::select('type', DB::raw('count(*) as count'))
+                ->groupBy('type')
+                ->get();
+                
+            return view('admin.panel-upload.statistics', compact('totalDownloads', 'downloadsByMonth', 'downloadsByType'));
+        } catch (\Exception $e) {
+            // Log the error
+            \Log::error('Error in panel statistics: ' . $e->getMessage());
             
-        $recentDownloads = Download::latest()->take(5)->get();
-        
-        return view('admin.panel-upload.statistics', compact(
-            'totalDownloads',
-            'activeDownloads',
-            'downloadsByType',
-            'recentDownloads'
-        ));
+            // Return view with empty data
+            return view('admin.panel-upload.statistics', [
+                'totalDownloads' => 0,
+                'downloadsByMonth' => collect(),
+                'downloadsByType' => collect(),
+                'error' => 'Could not retrieve download statistics. Please ensure the database is properly set up.'
+            ]);
+        }
     }
 } 

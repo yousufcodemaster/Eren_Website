@@ -159,43 +159,61 @@ class ResellerManagementController extends Controller
      */
     public function analytics()
     {
-        // Get basic stats
-        $totalResellers = User::where('premium_type', 'Reseller')->count();
-        $totalClients = ResellerClient::count();
-        $avgClients = $totalResellers > 0 ? round($totalClients / $totalResellers, 1) : 0;
-        
-        // New clients in the last 30 days
-        $newClients = ResellerClient::where('created_at', '>=', now()->subDays(30))->count();
-        
-        // Top performing resellers
-        $topResellers = User::where('premium_type', 'Reseller')
-            ->withCount('clients')
-            ->orderBy('clients_count', 'desc')
-            ->limit(5)
-            ->get();
+        try {
+            // Get basic stats
+            $totalResellers = User::where('premium_type', 'Reseller')->count();
+            $totalClients = ResellerClient::count();
+            $avgClients = $totalResellers > 0 ? round($totalClients / $totalResellers, 1) : 0;
             
-        // Recent activity
-        $recentActivity = ResellerClient::with(['reseller', 'client'])
-            ->orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get();
+            // New clients in the last 30 days
+            $newClients = ResellerClient::where('created_at', '>=', now()->subDays(30))->count();
             
-        // Monthly growth data for chart
-        $monthlyGrowth = $this->getMonthlyGrowthData();
-        
-        // Client distribution data for chart
-        $clientDistribution = $this->getClientDistributionData();
-        
-        return view('admin.resellers.analytics', compact(
-            'totalResellers',
-            'totalClients',
-            'avgClients',
-            'newClients',
-            'topResellers',
-            'recentActivity',
-            'monthlyGrowth',
-            'clientDistribution'
-        ));
+            // Top performing resellers
+            $topResellers = User::where('premium_type', 'Reseller')
+                ->withCount('clients')
+                ->orderBy('clients_count', 'desc')
+                ->limit(5)
+                ->get();
+                
+            // Recent activity
+            $recentActivity = ResellerClient::with(['reseller', 'client'])
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get();
+                
+            // Monthly growth data for chart
+            $monthlyGrowth = $this->getMonthlyGrowthData();
+            
+            // Client distribution data for chart
+            $clientDistribution = $this->getClientDistributionData();
+            
+            return view('admin.resellers.analytics', compact(
+                'totalResellers',
+                'totalClients',
+                'avgClients',
+                'newClients',
+                'topResellers',
+                'recentActivity',
+                'monthlyGrowth',
+                'clientDistribution'
+            ));
+        } catch (\Exception $e) {
+            // Log the error
+            \Log::error('Error in reseller analytics: ' . $e->getMessage());
+            
+            // Return view with empty data
+            return view('admin.resellers.analytics', [
+                'totalResellers' => 0,
+                'totalClients' => 0,
+                'avgClients' => 0,
+                'newClients' => 0,
+                'topResellers' => collect(),
+                'recentActivity' => collect(),
+                'monthlyGrowth' => collect(),
+                'clientDistribution' => collect(),
+                'error' => 'Could not retrieve reseller analytics. Please ensure the database is properly set up.'
+            ]);
+        }
     }
 
     /**
@@ -205,11 +223,16 @@ class ResellerManagementController extends Controller
      */
     protected function getMonthlyGrowthData()
     {
-        return ResellerClient::select(DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'), DB::raw('count(*) as count'))
-            ->where('created_at', '>=', now()->subMonths(6))
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get();
+        try {
+            return ResellerClient::select(DB::raw('TO_CHAR(created_at, \'YYYY-MM\') as month'), DB::raw('count(*) as count'))
+                ->where('created_at', '>=', now()->subMonths(12))
+                ->groupBy('month')
+                ->orderBy('month', 'asc')
+                ->get();
+        } catch (\Exception $e) {
+            // Return empty collection if there's an error
+            return collect();
+        }
     }
 
     /**

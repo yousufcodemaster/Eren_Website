@@ -38,8 +38,17 @@ class DashboardController extends Controller
         // Get reseller client stats
         $resellerStats = $this->getResellerStats();
         
-        // Get download stats
-        $downloadStats = $this->getDownloadStats();
+        // Get download stats with error handling
+        try {
+            $downloadStats = $this->getDownloadStats();
+        } catch (\Exception $e) {
+            // If there's an error getting download stats, provide empty data
+            $downloadStats = [
+                'total_downloads' => 0,
+                'downloads_by_type' => collect(),
+                'recent_downloads' => collect()
+            ];
+        }
         
         // Get system health stats
         $systemStats = $this->getSystemStats();
@@ -79,17 +88,25 @@ class DashboardController extends Controller
         }
         
         // Get daily user growth for the last 30 days
-        $dailyGrowth = User::select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
+        $dailyGrowth = User::select(DB::raw('TO_CHAR(created_at, \'YYYY-MM-DD\') as date'), DB::raw('count(*) as count'))
             ->where('created_at', '>=', now()->subDays(30))
             ->groupBy('date')
             ->orderBy('date')
             ->get();
             
+        // Get monthly client growth
+        $monthlyClientGrowth = ResellerClient::select(DB::raw('TO_CHAR(created_at, \'YYYY-MM\') as month'), DB::raw('count(*) as count'))
+            ->where('created_at', '>=', now()->subMonths(12))
+            ->groupBy('month')
+            ->orderBy('month', 'asc')
+            ->get();
+        
         return [
             'this_month' => $thisMonthUsers,
             'last_month' => $lastMonthUsers,
             'percent_change' => round($percentChange, 1),
-            'daily_growth' => $dailyGrowth
+            'daily_growth' => $dailyGrowth,
+            'monthly_growth' => $monthlyClientGrowth
         ];
     }
     
@@ -116,10 +133,10 @@ class DashboardController extends Controller
         $newClientsCount = ResellerClient::where('created_at', '>=', now()->subDays(30))->count();
         
         // Get monthly client growth
-        $monthlyClientGrowth = ResellerClient::select(DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'), DB::raw('count(*) as count'))
-            ->where('created_at', '>=', now()->subMonths(6))
+        $monthlyClientGrowth = ResellerClient::select(DB::raw('TO_CHAR(created_at, \'YYYY-MM\') as month'), DB::raw('count(*) as count'))
+            ->where('created_at', '>=', now()->subMonths(12))
             ->groupBy('month')
-            ->orderBy('month')
+            ->orderBy('month', 'asc')
             ->get();
         
         return [
@@ -139,18 +156,27 @@ class DashboardController extends Controller
      */
     protected function getDownloadStats()
     {
-        $totalDownloads = Download::count();
-        $downloadsByType = Download::select('type', DB::raw('count(*) as count'))
-            ->groupBy('type')
-            ->get();
+        try {
+            $totalDownloads = Download::count();
+            $downloadsByType = Download::select('type', DB::raw('count(*) as count'))
+                ->groupBy('type')
+                ->get();
+                
+            $recentDownloads = Download::latest()->take(5)->get();
             
-        $recentDownloads = Download::latest()->take(5)->get();
-        
-        return [
-            'total_downloads' => $totalDownloads,
-            'downloads_by_type' => $downloadsByType,
-            'recent_downloads' => $recentDownloads
-        ];
+            return [
+                'total_downloads' => $totalDownloads,
+                'downloads_by_type' => $downloadsByType,
+                'recent_downloads' => $recentDownloads
+            ];
+        } catch (\Exception $e) {
+            // Return empty stats if the downloads table doesn't exist yet
+            return [
+                'total_downloads' => 0,
+                'downloads_by_type' => collect(),
+                'recent_downloads' => collect()
+            ];
+        }
     }
     
     /**
