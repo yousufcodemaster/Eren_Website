@@ -11,13 +11,6 @@ class ResellerClient extends Model
     use HasFactory;
 
     /**
-     * The connection name for the model.
-     *
-     * @var string
-     */
-    protected $connection = 'reseller';
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>

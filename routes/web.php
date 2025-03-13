@@ -108,5 +108,30 @@ Route::post('/auth/discord/set-username', [SetDiscordUsernameController::class, 
     ->name('discord.username.store')
     ->middleware('auth');
 
+// Admin Routes
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+    
+    // User Management
+    Route::resource('users', App\Http\Controllers\Admin\UserManagementController::class);
+    Route::post('users/{user}/toggle-active', [App\Http\Controllers\Admin\UserManagementController::class, 'toggleActive'])->name('users.toggle-active');
+    Route::get('users/{user}/activity', [App\Http\Controllers\Admin\UserManagementController::class, 'activity'])->name('users.activity');
+    Route::get('users/{user}/subscription', [App\Http\Controllers\Admin\UserManagementController::class, 'subscription'])->name('users.subscription');
+    Route::put('users/{user}/subscription', [App\Http\Controllers\Admin\UserManagementController::class, 'updateSubscription'])->name('users.update-subscription');
+    
+    // Reseller Management
+    Route::resource('resellers', App\Http\Controllers\Admin\ResellerManagementController::class);
+    Route::get('resellers/{reseller}/clients', [App\Http\Controllers\Admin\ResellerManagementController::class, 'clients'])->name('resellers.clients');
+    Route::put('resellers/{reseller}/client-limit', [App\Http\Controllers\Admin\ResellerManagementController::class, 'updateClientLimit'])->name('resellers.update-client-limit');
+    Route::get('resellers/analytics', [App\Http\Controllers\Admin\ResellerManagementController::class, 'analytics'])->name('resellers.analytics');
+    
+    // Panel Upload Management
+    Route::resource('panel-upload', App\Http\Controllers\Admin\PanelUploadController::class);
+    Route::post('panel-upload/{download}/toggle-active', [App\Http\Controllers\Admin\PanelUploadController::class, 'toggleActive'])->name('panel-upload.toggle-active');
+    Route::get('panel-upload/{download}/download', [App\Http\Controllers\Admin\PanelUploadController::class, 'download'])->name('panel-upload.download');
+    Route::get('panel-upload/statistics', [App\Http\Controllers\Admin\PanelUploadController::class, 'statistics'])->name('panel-upload.statistics');
+});
+
 // Include Authentication Routes
 require __DIR__ . '/auth.php';
