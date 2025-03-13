@@ -134,6 +134,20 @@
                         </a>
                     </div>
                 </div>
+                
+                <!-- RESELLER MONTHLY -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold text-gray-800 dark:text-white">RESELLER</h3>
+                            <div class="text-2xl font-bold text-purple-600">$80/mo</div>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">Business opportunity for those who want to resell our solutions</p>
+                        <a href="{{ route('register') }}" class="block text-center w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors duration-300">
+                            Select Plan
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -153,6 +167,10 @@
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
                 <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Are updates included?</h3>
                 <p class="text-gray-600 dark:text-gray-400 mt-2">Yes, all plans include free updates for the duration of your subscription or permanently for lifetime purchases.</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">What's the difference between permanent and monthly plans?</h3>
+                <p class="text-gray-600 dark:text-gray-400 mt-2">Permanent plans require a one-time payment for lifetime access, while monthly plans are subscription-based with recurring payments.</p>
             </div>
         </div>
     </div>

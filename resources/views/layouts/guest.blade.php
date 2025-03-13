@@ -18,8 +18,7 @@
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
             <div class="mb-4">
                 <a href="/" class="flex flex-col items-center">
-                    <x-application-logo class="w-28 h-28 fill-current text-white" />
-                    <h1 class="mt-3 text-3xl font-bold text-white">Eren Regedit</h1>
+                    <h1 class="text-4xl font-bold text-white">Eren Regedit</h1>
                     <p class="text-purple-300 text-sm mt-1">Professional Gaming Tools</p>
                 </a>
             </div>

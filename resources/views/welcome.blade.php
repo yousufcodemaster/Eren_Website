@@ -7,10 +7,90 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+        <script src="https://cdn.tailwindcss.com"></script>
         <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+        <style>
+            /* Particles.js container */
+            #particles-js {
+                position: fixed;
+                width: 100%;
+                height: 100%;
+                background-color: transparent;
+                z-index: 0;
+            }
+
+            /* Bubbles Animation */
+            .bubbles {
+                pointer-events: none;
+            }
+
+            .bubbles span {
+                position: absolute;
+                display: block;
+                width: 20px;
+                height: 20px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+                bottom: -150px;
+                animation: bubble 15s infinite;
+                transition-timing-function: linear;
+            }
+
+            .bubbles span:nth-child(1) {
+                left: 10%;
+                animation-delay: 0s;
+                animation-duration: 12s;
+            }
+
+            .bubbles span:nth-child(2) {
+                left: 20%;
+                width: 40px;
+                height: 40px;
+                animation-delay: 2s;
+                animation-duration: 16s;
+            }
+
+            .bubbles span:nth-child(3) {
+                left: 35%;
+                animation-delay: 4s;
+                animation-duration: 13s;
+            }
+
+            .bubbles span:nth-child(4) {
+                left: 50%;
+                width: 60px;
+                height: 60px;
+                animation-delay: 6s;
+                animation-duration: 15s;
+            }
+
+            .bubbles span:nth-child(5) {
+                left: 65%;
+                animation-delay: 8s;
+                animation-duration: 14s;
+            }
+
+            .bubbles span:nth-child(6) {
+                left: 80%;
+                width: 30px;
+                height: 30px;
+                animation-delay: 10s;
+                animation-duration: 12s;
+            }
+
+            @keyframes bubble {
+                0% {
+                    transform: translateY(0) rotate(0);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(-1000px) rotate(720deg);
+                    opacity: 0;
+                }
+            }
+        </style>
     </head>
-    <body class="bg-gray-900">
+    <body class="bg-gray-900 text-white font-['Poppins']">
         <!-- Background effects -->
         <div id="particles-js" class="fixed inset-0 z-0"></div>
         <div class="bubbles fixed inset-0 z-0">
@@ -23,21 +103,21 @@
         </div>
         
         <!-- Content Container -->
-        <div class="relative z-10">
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Header -->
-            <header>
-                <a href="#" class="logo heading-glow">Eren <span>Regedit</span></a>
+            <header class="py-8 flex justify-between items-center">
+                <a href="#" class="text-2xl font-bold text-white hover:text-purple-400 transition">Eren <span class="text-purple-500">Regedit</span></a>
                 <nav>
-                    <ul>
-                        <li><a href="#" class="interactive-element">Home</a></li>
-                        <li><a href="#plans" class="interactive-element">Plans</a></li>
+                    <ul class="flex space-x-8">
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Home</a></li>
+                        <li><a href="#plans" class="text-gray-300 hover:text-white transition">Plans</a></li>
                         @if (Route::has('login'))
                             @auth
-                                <li><a href="{{ url('/dashboard') }}" class="interactive-element">Dashboard</a></li>
+                                <li><a href="{{ url('/dashboard') }}" class="text-gray-300 hover:text-white transition">Dashboard</a></li>
                             @else
-                                <li><a href="{{ route('login') }}" class="interactive-element">Login</a></li>
+                                <li><a href="{{ route('login') }}" class="text-gray-300 hover:text-white transition">Login</a></li>
                                 @if (Route::has('register'))
-                                    <li><a href="{{ route('register') }}" class="btn btn-primary interactive-element">Register</a></li>
+                                    <li><a href="{{ route('register') }}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition">Register</a></li>
                                 @endif
                             @endauth
                         @endif
@@ -46,64 +126,118 @@
             </header>
 
             <!-- Hero Section -->
-            <section class="hero section">
-                <div class="hero-content">
-                    <h1 class="heading-glow">Experience Gaming <span>Without Limits</span></h1>
-                    <p>Eren Regedit provides cutting-edge solutions for gamers who demand the ultimate performance and advantage in their gameplay experience.</p>
-                    <div class="hero-buttons">
-                        <a href="#plans" class="btn btn-primary interactive-element">Explore Plans</a>
-                        <a href="{{ route('login') }}" class="btn btn-secondary interactive-element">Get Started</a>
+            <section class="py-16 mb-16">
+                <div class="max-w-3xl">
+                    <h1 class="text-5xl font-bold leading-tight mb-6">Experience Gaming <span class="text-purple-500">Without Limits</span></h1>
+                    <p class="text-xl text-gray-300 mb-8">Eren Regedit provides cutting-edge solutions for gamers who demand the ultimate performance and advantage in their gameplay experience.</p>
+                    <div class="flex space-x-4">
+                        <a href="#plans" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition">Explore Plans</a>
+                        <a href="{{ route('login') }}" class="bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 px-6 py-3 rounded-lg font-medium hover:opacity-90 transition">Get Started</a>
                     </div>
                 </div>
             </section>
 
             <!-- Plans Section -->
-            <section id="plans" class="plans section">
-                <div class="section-title">
-                    <h2 class="heading-glow">Available Plans</h2>
-                    <p>Choose the perfect solution that fits your gaming needs</p>
+            <section id="plans" class="py-16 mb-16">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-bold mb-4">Available Plans</h2>
+                    <p class="text-xl text-gray-300">Choose the perfect solution that fits your gaming needs</p>
                 </div>
 
-                <div class="plans-container">
-                    <div class="plan-card pricing-card">
-                        <div class="plan-name">All-in-one</div>
-                        <p class="plan-description">Our complete package with all features and benefits for the ultimate gaming advantage.</p>
-                        <div class="plan-price">$59.99/mo</div>
-                        <a href="#" class="btn btn-primary interactive-element">Get Started</a>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- ALL-IN-ONE -->
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-purple-500 transition">
+                        <div class="text-2xl font-bold mb-3">All-in-one</div>
+                        <p class="text-gray-300 mb-5 h-20">Our complete package with all features and benefits for the ultimate gaming advantage.</p>
+                        
+                        <div class="flex flex-col mb-6 space-y-2">
+                            <div class="font-bold text-xl text-purple-400">Permanent</div>
+                            <div class="text-3xl font-bold">$75</div>
+                        </div>
+                        
+                        <div class="flex flex-col mb-6 space-y-2">
+                            <div class="font-bold text-xl text-purple-400">Monthly</div>
+                            <div class="text-3xl font-bold">(Not Available)</div>
+                        </div>
+                        
+                        <a href="#" class="block text-center bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg transition">Get Started</a>
                     </div>
 
-                    <div class="plan-card pricing-card">
-                        <div class="plan-name">External</div>
-                        <p class="plan-description">External solution for those who need flexibility and compatibility with various game setups.</p>
-                        <div class="plan-price">$39.99/mo</div>
-                        <a href="#" class="btn btn-primary interactive-element">Get Started</a>
+                    <!-- EXTERNAL -->
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-purple-500 transition">
+                        <div class="text-2xl font-bold mb-3">External</div>
+                        <p class="text-gray-300 mb-5 h-20">External solution for those who need flexibility and compatibility with various game setups.</p>
+                        
+                        <div class="flex flex-col mb-6 space-y-2">
+                            <div class="font-bold text-xl text-purple-400">Permanent</div>
+                            <div class="text-3xl font-bold">$20</div>
+                        </div>
+                        
+                        <div class="flex flex-col mb-6 space-y-2">
+                            <div class="font-bold text-xl text-purple-400">Monthly</div>
+                            <div class="text-3xl font-bold">$9/mo</div>
+                        </div>
+                        
+                        <a href="#" class="block text-center bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg transition">Get Started</a>
                     </div>
 
-                    <div class="plan-card pricing-card">
-                        <div class="plan-name">Streamer</div>
-                        <p class="plan-description">Specially designed for content creators with stream-friendly features and optimizations.</p>
-                        <div class="plan-price">$44.99/mo</div>
-                        <a href="#" class="btn btn-primary interactive-element">Get Started</a>
+                    <!-- STREAMER -->
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-purple-500 transition">
+                        <div class="text-2xl font-bold mb-3">Streamer</div>
+                        <p class="text-gray-300 mb-5 h-20">Specially designed for content creators with stream-friendly features and optimizations.</p>
+                        
+                        <div class="flex flex-col mb-6 space-y-2">
+                            <div class="font-bold text-xl text-purple-400">Permanent</div>
+                            <div class="text-3xl font-bold">$50</div>
+                        </div>
+                        
+                        <div class="flex flex-col mb-6 space-y-2">
+                            <div class="font-bold text-xl text-purple-400">Monthly</div>
+                            <div class="text-3xl font-bold">$20/mo</div>
+                        </div>
+                        
+                        <a href="#" class="block text-center bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg transition">Get Started</a>
                     </div>
 
-                    <div class="plan-card pricing-card">
-                        <div class="plan-name">Bypass</div>
-                        <p class="plan-description">Advanced solution that ensures smooth gameplay without interference.</p>
-                        <div class="plan-price">$34.99/mo</div>
-                        <a href="#" class="btn btn-primary interactive-element">Get Started</a>
+                    <!-- BYPASS -->
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-purple-500 transition">
+                        <div class="text-2xl font-bold mb-3">Bypass</div>
+                        <p class="text-gray-300 mb-5 h-20">Advanced solution that ensures smooth gameplay without interference.</p>
+                        
+                        <div class="flex flex-col mb-6 space-y-2">
+                            <div class="font-bold text-xl text-purple-400">Permanent</div>
+                            <div class="text-3xl font-bold">$17</div>
+                        </div>
+                        
+                        <div class="flex flex-col mb-6 space-y-2">
+                            <div class="font-bold text-xl text-purple-400">Monthly</div>
+                            <div class="text-3xl font-bold">$7/mo</div>
+                        </div>
+                        
+                        <a href="#" class="block text-center bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg transition">Get Started</a>
                     </div>
 
-                    <div class="plan-card pricing-card">
-                        <div class="plan-name">Reseller</div>
-                        <p class="plan-description">Business opportunity for those who want to share our premium solutions with others.</p>
-                        <div class="plan-price">$149.99/mo</div>
-                        <a href="#" class="btn btn-primary interactive-element">Get Started</a>
+                    <!-- RESELLER -->
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-purple-500 transition">
+                        <div class="text-2xl font-bold mb-3">Reseller</div>
+                        <p class="text-gray-300 mb-5 h-20">Business opportunity for those who want to share our premium solutions with others.</p>
+                        
+                        <div class="flex flex-col mb-6 space-y-2">
+                            <div class="font-bold text-xl text-purple-400">Permanent</div>
+                            <div class="text-3xl font-bold">(Not Available)</div>
+                        </div>
+                        
+                        <div class="flex flex-col mb-6 space-y-2">
+                            <div class="font-bold text-xl text-purple-400">Monthly</div>
+                            <div class="text-3xl font-bold">$80/mo</div>
+                        </div>
+                        
+                        <a href="#" class="block text-center bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg transition">Get Started</a>
                     </div>
                 </div>
             </section>
         </div>
 
-        <script src="{{ asset('js/custom.js') }}"></script>
         <script>
             particlesJS('particles-js', {
                 "particles": {

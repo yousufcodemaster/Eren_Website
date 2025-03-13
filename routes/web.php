@@ -81,10 +81,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('users', UserController::class);
         
         // Reseller Management
+        Route::get('/resellers', [UserController::class, 'resellerManagement'])->name('resellers.management');
         Route::get('/resellers/analytics', [UserController::class, 'resellerAnalytics'])->name('resellers.analytics');
+        Route::get('/resellers/{reseller}', [App\Http\Controllers\Admin\ResellerController::class, 'show'])->name('resellers.show');
+        Route::put('/resellers/{reseller}/update-limit', [App\Http\Controllers\Admin\ResellerController::class, 'updateClientLimit'])->name('resellers.update-limit');
+        Route::delete('/resellers/{reseller}/clients/{clientId}', [App\Http\Controllers\Admin\ResellerController::class, 'removeClient'])->name('resellers.remove-client');
         
         // Download Management
         Route::get('/downloads', [AdminController::class, 'manageDownloads'])->name('downloads.manage');
+        Route::get('/downloads/{download}/edit', [AdminController::class, 'editDownload'])->name('downloads.edit');
         Route::post('/downloads', [AdminController::class, 'storeDownload'])->name('downloads.store');
         Route::put('/downloads/{download}', [AdminController::class, 'updateDownload'])->name('downloads.update');
         Route::delete('/downloads/{download}', [AdminController::class, 'destroyDownload'])->name('downloads.delete');

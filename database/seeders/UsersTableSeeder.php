@@ -8,53 +8,85 @@ use Illuminate\Support\Facades\Hash;
 
 class UsersTableSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        // Create Admin Users
-        $adminUsers = [
-            [
-                'name' => 'Admin User',
-                'email' => 'admin@admin.com',
-                'password' => 'admin123',
-            ],
-            [
-                'name' => 'Super Admin',
-                'email' => 'superadmin@admin.com',
-                'password' => 'admin123',
-            ]
-        ];
-
-        foreach ($adminUsers as $admin) {
-            User::create([
-                'name' => $admin['name'],
-                'email' => $admin['email'],
-                'password' => Hash::make($admin['password']),
-                'role' => 'admin',
-                'email_verified_at' => now(),
-            ]);
-        }
-
-        // Create Premium Users with different types
-        $premiumTypes = ['All', 'External', 'Streamer', 'Bypass', 'Reseller'];
+        // Clear existing users first
+        User::truncate();
         
-        foreach ($premiumTypes as $type) {
-            User::create([
-                'name' => "$type User",
-                'email' => strtolower($type) . '@example.com',
-                'password' => Hash::make('password123'),
-                'role' => 'user',
-                'premium_type' => $type,
-                'email_verified_at' => now(),
-            ]);
-        }
+        // Create Admin User
+        User::create([
+            'name' => 'Admin User',
+            'email' => 'admin@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'admin',
+            'premium_type' => null,
+            'is_reseller' => false,
+            'max_clients' => 0,
+            'email_verified_at' => now(),
+        ]);
 
-        // Create a regular user
+        // Create Regular User
         User::create([
             'name' => 'Regular User',
             'email' => 'user@example.com',
-            'password' => Hash::make('password123'),
+            'password' => Hash::make('password'),
             'role' => 'user',
+            'premium_type' => null,
+            'is_reseller' => false,
+            'max_clients' => 0,
             'email_verified_at' => now(),
         ]);
+
+        // Create Discord User
+        User::create([
+            'name' => 'Discord User',
+            'email' => 'discord@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'user',
+            'premium_type' => null,
+            'is_reseller' => false,
+            'max_clients' => 0,
+            'discord_id' => '123456789',
+            'discord_username' => 'discord_user#1234',
+            'discord_avatar' => 'https://cdn.discordapp.com/avatars/123456789/default_avatar.png',
+            'email_verified_at' => now(),
+        ]);
+        
+        // Create Premium Users with different premium types
+        $premiumTypes = ['All', 'External', 'Streamer', 'Bypass', 'Reseller'];
+        
+        foreach ($premiumTypes as $index => $type) {
+            $isReseller = $type === 'Reseller';
+            $maxClients = $isReseller ? 10 : 0;
+            
+            User::create([
+                'name' => $type . ' Premium User',
+                'email' => strtolower($type) . '@example.com',
+                'password' => Hash::make('password'),
+                'role' => 'user',
+                'premium_type' => $type,
+                'is_reseller' => $isReseller,
+                'max_clients' => $maxClients,
+                'email_verified_at' => now(),
+            ]);
+        }
+        
+        // Create a few more Reseller users with different client limits
+        $resellerLimits = [5, 15, 25];
+        foreach ($resellerLimits as $index => $limit) {
+            User::create([
+                'name' => 'Reseller User ' . ($index + 1),
+                'email' => 'reseller' . ($index + 1) . '@example.com',
+                'password' => Hash::make('password'),
+                'role' => 'user',
+                'premium_type' => 'Reseller',
+                'is_reseller' => true,
+                'max_clients' => $limit,
+                'email_verified_at' => now(),
+            ]);
+        }
     }
 } 

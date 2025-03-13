@@ -19,9 +19,14 @@
                         {{ request()->routeIs('admin.users.*') ? 'border-purple-500 text-purple-400' : 'border-transparent text-gray-400 hover:text-gray-300' }}">
                         User Management
                     </a>
+                    <a href="{{ route('admin.resellers.management') }}"
+                        class="inline-flex items-center px-1 pt-1 border-b-2 
+                        {{ request()->routeIs('admin.resellers.management') || request()->routeIs('admin.resellers.show') ? 'border-purple-500 text-purple-400' : 'border-transparent text-gray-400 hover:text-gray-300' }}">
+                        Reseller Management
+                    </a>
                     <a href="{{ route('admin.resellers.analytics') }}"
                         class="inline-flex items-center px-1 pt-1 border-b-2 
-                        {{ request()->routeIs('admin.resellers.*') ? 'border-purple-500 text-purple-400' : 'border-transparent text-gray-400 hover:text-gray-300' }}">
+                        {{ request()->routeIs('admin.resellers.analytics') ? 'border-purple-500 text-purple-400' : 'border-transparent text-gray-400 hover:text-gray-300' }}">
                         Reseller Analytics
                     </a>
                     <a href="{{ route('settings') }}"
@@ -78,6 +83,16 @@
                 class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium 
                 {{ request()->routeIs('admin.users.*') ? 'border-purple-500 text-purple-400 bg-purple-900/50' : 'border-transparent text-gray-400 hover:text-gray-300 hover:bg-gray-700' }}">
                 User Management
+            </a>
+            <a href="{{ route('admin.resellers.management') }}"
+                class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium 
+                {{ request()->routeIs('admin.resellers.management') || request()->routeIs('admin.resellers.show') ? 'border-purple-500 text-purple-400 bg-purple-900/50' : 'border-transparent text-gray-400 hover:text-gray-300 hover:bg-gray-700' }}">
+                Reseller Management
+            </a>
+            <a href="{{ route('admin.resellers.analytics') }}"
+                class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium 
+                {{ request()->routeIs('admin.resellers.analytics') ? 'border-purple-500 text-purple-400 bg-purple-900/50' : 'border-transparent text-gray-400 hover:text-gray-300 hover:bg-gray-700' }}">
+                Reseller Analytics
             </a>
         </div>
 

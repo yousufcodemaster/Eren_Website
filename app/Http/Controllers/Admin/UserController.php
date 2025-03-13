@@ -72,4 +72,76 @@ class UserController extends Controller
         $user->delete();
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
     }
+
+    public function resellerManagement(Request $request)
+    {
+        // Get base query for resellers
+        $resellersQuery = User::where('premium_type', 'Reseller')
+                          ->where('is_reseller', true);
+        
+        // Apply filters if provided
+        if ($request->has('search')) {
+            $search = $request->search;
+            $resellersQuery->where(function($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+        
+        // Order results
+        $orderBy = $request->order_by ?? 'created_at';
+        $orderDir = $request->order_dir ?? 'desc';
+        $resellersQuery->orderBy($orderBy, $orderDir);
+        
+        // Get paginated results with client relationship
+        $resellers = $resellersQuery->with('clients')->paginate(10);
+        
+        return view('admin.reseller-management', compact('resellers'));
+    }
+    
+    /**
+     * Display the reseller analytics page
+     */
+    public function resellerAnalytics()
+    {
+        // Get all resellers
+        $resellers = User::where('premium_type', 'Reseller')->get();
+        
+        // Calculate total resellers
+        $totalResellers = $resellers->count();
+        
+        // Calculate total clients
+        $totalClients = 0;
+        foreach ($resellers as $reseller) {
+            $totalClients += $reseller->clients()->count();
+        }
+        
+        // Calculate average clients per reseller
+        $avgClientsPerReseller = $totalResellers > 0 ? round($totalClients / $totalResellers, 1) : 0;
+        
+        // Get top resellers by client count
+        $topResellers = User::where('premium_type', 'Reseller')
+            ->withCount('clients')
+            ->orderBy('clients_count', 'desc')
+            ->take(10)
+            ->get();
+            
+        // Get recent activity related to resellers
+        $recentActivity = \Spatie\Activitylog\Models\Activity::where('subject_type', User::class)
+            ->whereHasMorph('subject', User::class, function ($query) {
+                $query->where('premium_type', 'Reseller');
+            })
+            ->orWhere('description', 'like', '%reseller%')
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+        
+        return view('admin.reseller-analytics', [
+            'totalResellers' => $totalResellers,
+            'totalClients' => $totalClients,
+            'avgClientsPerReseller' => $avgClientsPerReseller,
+            'topResellers' => $topResellers,
+            'recentActivity' => $recentActivity,
+        ]);
+    }
 } 

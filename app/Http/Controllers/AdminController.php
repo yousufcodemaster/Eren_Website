@@ -109,6 +109,13 @@ class AdminController extends Controller
             $user->password = Hash::make($request->password);
         }
         
+        if ($request->filled('panel_password')) {
+            $request->validate([
+                'panel_password' => 'string|min:6',
+            ]);
+            $user->panel_password = Hash::make($request->panel_password);
+        }
+        
         $user->save();
         
         return redirect()->route('admin.users.index')->with('success', 'User updated successfully!');
@@ -184,16 +191,36 @@ class AdminController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'url' => 'required|url',
+            'url' => 'nullable|url',
+            'file' => 'nullable|file|max:500000', // Max 500MB
             'version' => 'required|string|max:50',
             'type' => 'required|string|in:All,External,Streamer,Bypass,Reseller',
             'release_notes' => 'nullable|string',
         ]);
 
+        // At least one of url or file must be provided
+        if (empty($validated['url']) && !$request->hasFile('file')) {
+            return back()->withErrors(['error' => 'Either a URL or a file must be provided.']);
+        }
+
+        // If file is uploaded, store it and set URL
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('downloads', 'public');
+            $validated['url'] = asset('storage/' . $filePath);
+        }
+
         $download = \App\Models\Download::create($validated);
 
         return redirect()->route('admin.downloads.manage')
             ->with('status', 'Download link added successfully.');
+    }
+
+    /**
+     * Get download details for editing.
+     */
+    public function editDownload(\App\Models\Download $download)
+    {
+        return response()->json($download);
     }
 
     /**
@@ -204,11 +231,21 @@ class AdminController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'url' => 'required|url',
+            'url' => 'nullable|url',
+            'file' => 'nullable|file|max:500000', // Max 500MB
             'version' => 'required|string|max:50',
             'type' => 'required|string|in:All,External,Streamer,Bypass,Reseller',
             'release_notes' => 'nullable|string',
         ]);
+
+        // If file is uploaded, store it and set URL
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('downloads', 'public');
+            $validated['url'] = asset('storage/' . $filePath);
+        } elseif (empty($validated['url'])) {
+            // Keep existing URL if no new URL or file provided
+            $validated['url'] = $download->url;
+        }
 
         $download->update($validated);
 

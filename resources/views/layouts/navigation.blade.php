@@ -20,15 +20,9 @@
                         {{ __('Pricing') }}
                     </x-nav-link>
 
-                    @if(Auth::check() && Auth::user()->role === 'admin')
-                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
-                            {{ __('Admin Panel') }}
-                        </x-nav-link>
-                    @endif
-
                     @if(Auth::check() && Auth::user()->is_reseller)
                         <x-nav-link :href="route('reseller.dashboard')" :active="request()->routeIs('reseller.*')">
-                            {{ __('Reseller Panel') }}
+                            {{ __('Reseller Dashboard') }}
                         </x-nav-link>
                     @endif
                 </div>
@@ -118,15 +112,9 @@
                 {{ __('Pricing') }}
             </x-responsive-nav-link>
 
-            @if(Auth::check() && Auth::user()->role === 'admin')
-                <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
-                    {{ __('Admin Panel') }}
-                </x-responsive-nav-link>
-            @endif
-
             @if(Auth::check() && Auth::user()->is_reseller)
                 <x-responsive-nav-link :href="route('reseller.dashboard')" :active="request()->routeIs('reseller.*')">
-                    {{ __('Reseller Panel') }}
+                    {{ __('Reseller Dashboard') }}
                 </x-responsive-nav-link>
             @endif
         </div>

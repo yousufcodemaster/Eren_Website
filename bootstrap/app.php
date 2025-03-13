@@ -6,7 +6,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withProviders([
-        Laravel\Socialite\SocialiteServiceProvider::class,
+        // Add your custom providers here if needed
     ])
     ->withRouting(
         web: __DIR__ . '/../routes/web.php',
