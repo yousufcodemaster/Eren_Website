@@ -84,18 +84,32 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // User Management
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::resource('users', UserManagementController::class)->except(['index']);
+    Route::post('/users/{user}/toggle-active', [UserManagementController::class, 'toggleActive'])->name('users.toggle-active');
+    Route::get('/users/{user}/activity', [UserManagementController::class, 'activity'])->name('users.activity');
+    Route::get('/users/{user}/subscription', [UserManagementController::class, 'subscription'])->name('users.subscription');
+    Route::post('/users/{user}/subscription', [UserManagementController::class, 'updateSubscription'])->name('users.subscription.update');
     
     // Reseller Management
     Route::get('/reseller-management', [ResellerManagementController::class, 'index'])->name('resellers.index');
     Route::get('/resellers', [ResellerController::class, 'index'])->name('resellers.table');
+    Route::get('/resellers/management', [UserController::class, 'resellerManagement'])->name('resellers.management');
+    Route::get('/resellers/analytics', [UserController::class, 'resellerAnalytics'])->name('resellers.analytics');
     Route::get('/resellers/{reseller}', [ResellerController::class, 'show'])->name('resellers.show');
     Route::post('/resellers/{reseller}/client-limit', [ResellerController::class, 'updateClientLimit'])->name('resellers.client-limit');
+    Route::post('/resellers/{reseller}/update-limit', [ResellerController::class, 'updateClientLimit'])->name('resellers.update-limit');
     Route::post('/resellers/{reseller}/remove-client/{client}', [ResellerController::class, 'removeClient'])->name('resellers.remove-client');
+    Route::get('/resellers/{reseller}/clients', [ResellerManagementController::class, 'clients'])->name('resellers.clients');
+    Route::resource('resellers', ResellerManagementController::class)->except(['index', 'show']);
     
     // Panel Upload
     Route::get('/panel-upload', [PanelUploadController::class, 'index'])->name('panel-upload.index');
     Route::post('/panel-upload', [PanelUploadController::class, 'store'])->name('panel-upload.store');
     Route::delete('/panel-upload/{file}', [PanelUploadController::class, 'destroy'])->name('panel-upload.destroy');
+    Route::get('/panel/download/{file}', [PanelUploadController::class, 'download'])->name('panel.download');
+    Route::post('/panel/upload', [PanelUploadController::class, 'store'])->name('panel.upload');
+    
+    // Download Management
+    Route::get('/downloads', [AdminController::class, 'manageDownloads'])->name('downloads.manage');
     
     // Admin Settings
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
