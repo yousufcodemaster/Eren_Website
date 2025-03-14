@@ -167,7 +167,11 @@
                         </div>
                         <div class="ml-3 flex-1">
                             <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                <span class="font-semibold">{{ $activity->reseller->name }}</span> added <span class="font-semibold">{{ $activity->discord_username }}</span>
+                                @if(isset($activity->reseller) && $activity->reseller)
+                                <span class="font-semibold">{{ $activity->reseller->name }}</span> added <span class="font-semibold">{{ $activity->discord_username ?? 'a client' }}</span>
+                                @else
+                                <span class="font-semibold">Activity: {{ $activity->description }}</span>
+                                @endif
                             </div>
                             <div class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                                 {{ $activity->created_at->diffForHumans() }}
@@ -213,6 +217,33 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Function to check if dark mode is active
+        function isDarkMode() {
+            return document.documentElement.classList.contains('dark');
+        }
+        
+        // Function to update chart colors
+        function updateChartColors(chart) {
+            const darkMode = isDarkMode();
+            
+            // Update text colors
+            chart.options.plugins.legend.labels.color = darkMode ? 'white' : 'black';
+            
+            // Update grid colors
+            if (chart.options.scales) {
+                if (chart.options.scales.x) {
+                    chart.options.scales.x.grid.color = darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+                    chart.options.scales.x.ticks.color = darkMode ? 'white' : 'black';
+                }
+                if (chart.options.scales.y) {
+                    chart.options.scales.y.grid.color = darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+                    chart.options.scales.y.ticks.color = darkMode ? 'white' : 'black';
+                }
+            }
+            
+            chart.update();
+        }
+        
         // Monthly Growth Chart
         const monthlyGrowthCtx = document.getElementById('monthlyGrowthChart').getContext('2d');
         
@@ -243,26 +274,26 @@
                             font: {
                                 size: 12
                             },
-                            color: document.documentElement.classList.contains('dark') ? 'white' : 'black'
+                            color: isDarkMode() ? 'white' : 'black'
                         }
                     },
                 },
                 scales: {
                     x: {
                         grid: {
-                            color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                            color: isDarkMode() ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
                         },
                         ticks: {
-                            color: document.documentElement.classList.contains('dark') ? 'white' : 'black'
+                            color: isDarkMode() ? 'white' : 'black'
                         }
                     },
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                            color: isDarkMode() ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
                         },
                         ticks: {
-                            color: document.documentElement.classList.contains('dark') ? 'white' : 'black'
+                            color: isDarkMode() ? 'white' : 'black'
                         }
                     }
                 }
@@ -304,12 +335,25 @@
                             font: {
                                 size: 12
                             },
-                            color: document.documentElement.classList.contains('dark') ? 'white' : 'black'
+                            color: isDarkMode() ? 'white' : 'black'
                         }
                     }
                 }
             }
         });
+        
+        // Listen for theme changes to update charts
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class' && 
+                    mutation.target === document.documentElement) {
+                    updateChartColors(monthlyGrowthChart);
+                    updateChartColors(distributionChart);
+                }
+            });
+        });
+        
+        observer.observe(document.documentElement, { attributes: true });
     });
 </script>
 @endpush

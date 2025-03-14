@@ -187,7 +187,7 @@ class UserController extends Controller
         }
         
         // Calculate average clients per reseller
-        $avgClientsPerReseller = $totalResellers > 0 ? round($totalClients / $totalResellers, 1) : 0;
+        $averageClientsPerReseller = $totalResellers > 0 ? round($totalClients / $totalResellers, 1) : 0;
         
         // Get top resellers by client count
         $topResellers = User::where('premium_type', 'Reseller')
@@ -202,16 +202,47 @@ class UserController extends Controller
                 $query->where('premium_type', 'Reseller');
             })
             ->orWhere('description', 'like', '%reseller%')
+            ->with('subject')
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get();
         
+        // Transform activity data to ensure the reseller property is available
+        $recentActivity = $recentActivity->map(function ($activity) {
+            if ($activity->subject && $activity->subject->premium_type === 'Reseller') {
+                $activity->reseller = $activity->subject;
+            }
+            return $activity;
+        });
+        
+        // Calculate growth rate - assuming 0% if no previous data is available
+        $growthRate = 0;
+        
+        // Get new clients in the last 30 days
+        $newClients = \App\Models\ResellerClient::where('created_at', '>=', now()->subDays(30))->count();
+        
+        // Generate monthly growth data for the chart
+        $monthlyGrowth = collect();
+        for ($i = 5; $i >= 0; $i--) {
+            $month = now()->subMonths($i);
+            $count = \App\Models\ResellerClient::whereYear('created_at', $month->year)
+                                              ->whereMonth('created_at', $month->month)
+                                              ->count();
+            $monthlyGrowth->push([
+                'month' => $month->format('M Y'),
+                'count' => $count
+            ]);
+        }
+        
         return view('admin.reseller-analytics', [
             'totalResellers' => $totalResellers,
             'totalClients' => $totalClients,
-            'avgClientsPerReseller' => $avgClientsPerReseller,
+            'averageClientsPerReseller' => $averageClientsPerReseller,
             'topResellers' => $topResellers,
             'recentActivity' => $recentActivity,
+            'growthRate' => $growthRate,
+            'newClients' => $newClients,
+            'monthlyGrowth' => $monthlyGrowth
         ]);
     }
 } 

@@ -83,7 +83,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     
     // User Management
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    Route::resource('users', UserManagementController::class)->except(['index']);
+    Route::get('/users/create', [UserManagementController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');
+    Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/{user}/toggle-active', [UserManagementController::class, 'toggleActive'])->name('users.toggle-active');
     Route::get('/users/{user}/activity', [UserManagementController::class, 'activity'])->name('users.activity');
     Route::get('/users/{user}/subscription', [UserManagementController::class, 'subscription'])->name('users.subscription');
@@ -110,6 +114,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     
     // Download Management
     Route::get('/downloads', [AdminController::class, 'manageDownloads'])->name('downloads.manage');
+    Route::post('/downloads', [AdminController::class, 'storeDownload'])->name('downloads.store');
+    Route::get('/downloads/{download}/edit', [AdminController::class, 'editDownload'])->name('downloads.edit');
+    Route::put('/downloads/{download}', [AdminController::class, 'updateDownload'])->name('downloads.update');
+    Route::delete('/downloads/{download}', [AdminController::class, 'destroyDownload'])->name('downloads.delete');
     
     // Admin Settings
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
