@@ -4,7 +4,7 @@
 <div class="container px-6 py-8 mx-auto">
     <!-- Header Section with Back Button -->
     <div class="flex items-center mb-6">
-        <a href="{{ route('admin.reseller-management') }}" class="mr-4 flex items-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+        <a href="{{ route('admin.resellers.management') }}" class="mr-4 flex items-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>

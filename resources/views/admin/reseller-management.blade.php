@@ -12,7 +12,7 @@
 
     <!-- Filters -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
-        <form action="{{ route('admin.reseller-management') }}" method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <form action="{{ route('admin.resellers.management') }}" method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
                 <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Search Resellers</label>
                 <input type="text" name="search" id="search" value="{{ request('search') }}" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" placeholder="Search by name or email...">

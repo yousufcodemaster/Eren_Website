@@ -67,6 +67,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user is an admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is a reseller.
+     */
+    public function isReseller(): bool
+    {
+        return $this->is_reseller === true;
+    }
+
+    /**
      * Check if user is premium.
      */
     public function isPremium(): bool

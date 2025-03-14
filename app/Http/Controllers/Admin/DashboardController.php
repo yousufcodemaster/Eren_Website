@@ -29,11 +29,15 @@ class DashboardController extends Controller
         $bypassUsers = User::where('premium_type', 'Bypass')->count();
         $resellerUsers = User::where('premium_type', 'Reseller')->count();
         
+        // Calculate total reseller clients
+        $totalResellerClients = ResellerClient::count();
+        
         // Recent users
         $recentUsers = User::latest()->take(5)->get();
         
         // Get activity stats (user growth)
         $userStats = $this->getUserGrowthStats();
+        $userGrowth = $userStats['percent_change']; // Extract user growth percentage
         
         // Get reseller client stats
         $resellerStats = $this->getResellerStats();
@@ -53,6 +57,14 @@ class DashboardController extends Controller
         // Get system health stats
         $systemStats = $this->getSystemStats();
         
+        // Create simple stats for user growth chart
+        $userGrowthStats = [
+            'current_month' => $userStats['this_month'],
+            'percentage_change' => $userStats['percent_change'],
+            'labels' => $userStats['daily_growth']->pluck('date')->toArray(),
+            'data' => $userStats['daily_growth']->pluck('count')->toArray(),
+        ];
+        
         return view('admin.dashboard', compact(
             'totalUsers',
             'premiumUsers',
@@ -63,9 +75,12 @@ class DashboardController extends Controller
             'resellerUsers',
             'recentUsers',
             'userStats',
+            'userGrowth',
+            'userGrowthStats',
             'resellerStats',
             'downloadStats',
-            'systemStats'
+            'systemStats',
+            'totalResellerClients'
         ));
     }
     
@@ -144,7 +159,7 @@ class DashboardController extends Controller
             'total_clients' => $totalClients,
             'avg_clients' => $avgClientsPerReseller,
             'top_resellers' => $topResellers,
-            'new_clients_count' => $newClientsCount,
+            'new_clients' => $newClientsCount,
             'monthly_growth' => $monthlyClientGrowth
         ];
     }
@@ -204,17 +219,36 @@ class DashboardController extends Controller
      */
     protected function getDiskUsage()
     {
-        $total = disk_total_space('/');
-        $free = disk_free_space('/');
-        $used = $total - $free;
-        $percentage = round(($used / $total) * 100, 1);
-        
-        return [
-            'total' => $this->formatBytes($total),
-            'free' => $this->formatBytes($free),
-            'used' => $this->formatBytes($used),
-            'percentage' => $percentage
-        ];
+        try {
+            $total = disk_total_space('/');
+            $free = disk_free_space('/');
+            
+            // Check if the values are valid
+            if ($total === false || $free === false) {
+                throw new \Exception('Could not get disk space information');
+            }
+            
+            $used = $total - $free;
+            $percentage = round(($used / $total) * 100, 1);
+            
+            return [
+                'total' => $this->formatBytes($total),
+                'free' => $this->formatBytes($free),
+                'used' => $this->formatBytes($used),
+                'percentage' => $percentage
+            ];
+        } catch (\Exception $e) {
+            // Log the error
+            \Log::warning('Error getting disk usage: ' . $e->getMessage());
+            
+            // Return placeholder data
+            return [
+                'total' => 'N/A',
+                'free' => 'N/A',
+                'used' => 'N/A',
+                'percentage' => 0
+            ];
+        }
     }
     
     /**
@@ -224,32 +258,66 @@ class DashboardController extends Controller
      */
     protected function getMemoryUsage()
     {
-        if (function_exists('exec')) {
-            $memory = [];
-            exec('free -m', $memory);
+        try {
+            // Linux specific memory usage via 'free' command
+            if (function_exists('exec') && PHP_OS !== 'WINNT' && PHP_OS !== 'WIN32') {
+                $memory = [];
+                exec('free -m 2>&1', $memory, $return_var);
+                
+                // Check if command executed successfully
+                if ($return_var === 0 && isset($memory[1])) {
+                    $values = explode(' ', preg_replace('/\s+/', ' ', trim($memory[1])));
+                    $total = $values[1];
+                    $used = $values[2];
+                    $free = $values[3];
+                    $percentage = round(($used / $total) * 100, 1);
+                    
+                    return [
+                        'total' => $total . ' MB',
+                        'used' => $used . ' MB',
+                        'free' => $free . ' MB',
+                        'percentage' => $percentage
+                    ];
+                }
+            }
             
-            if (isset($memory[1])) {
-                $values = explode(' ', preg_replace('/\s+/', ' ', trim($memory[1])));
-                $total = $values[1];
-                $used = $values[2];
-                $free = $values[3];
-                $percentage = round(($used / $total) * 100, 1);
+            // For Windows or if Linux command failed, try to get memory info from PHP
+            $memoryLimit = ini_get('memory_limit');
+            $memoryUsage = memory_get_usage(true);
+            $memoryPeak = memory_get_peak_usage(true);
+            
+            if ($memoryLimit && $memoryUsage) {
+                // Convert memory limit to bytes if it's in shorthand notation
+                if (preg_match('/^(\d+)(.)$/', $memoryLimit, $matches)) {
+                    $memoryLimit = $matches[1];
+                    switch (strtoupper($matches[2])) {
+                        case 'G': $memoryLimit *= 1024;
+                        case 'M': $memoryLimit *= 1024;
+                        case 'K': $memoryLimit *= 1024;
+                    }
+                }
                 
                 return [
-                    'total' => $total . ' MB',
-                    'used' => $used . ' MB',
-                    'free' => $free . ' MB',
-                    'percentage' => $percentage
+                    'total' => $this->formatBytes((int)$memoryLimit),
+                    'used' => $this->formatBytes($memoryUsage),
+                    'peak' => $this->formatBytes($memoryPeak),
+                    'percentage' => $memoryLimit > 0 ? round(($memoryUsage / $memoryLimit) * 100, 1) : 0
                 ];
             }
+            
+            throw new \Exception('Could not determine memory usage');
+        } catch (\Exception $e) {
+            // Log the error
+            \Log::warning('Error getting memory usage: ' . $e->getMessage());
+            
+            // Return placeholder data
+            return [
+                'total' => 'N/A',
+                'used' => 'N/A',
+                'free' => 'N/A',
+                'percentage' => 0
+            ];
         }
-        
-        return [
-            'total' => 'N/A',
-            'used' => 'N/A',
-            'free' => 'N/A',
-            'percentage' => 0
-        ];
     }
     
     /**
@@ -259,7 +327,8 @@ class DashboardController extends Controller
      */
     protected function getCpuUsage()
     {
-        if (function_exists('exec')) {
+        // Check if both exec and sys_getloadavg functions are available
+        if (function_exists('exec') && function_exists('sys_getloadavg')) {
             $load = sys_getloadavg();
             return [
                 'current' => round($load[0], 1),
@@ -268,6 +337,7 @@ class DashboardController extends Controller
             ];
         }
         
+        // Return placeholder values if functions are not available (e.g., on Windows)
         return [
             'current' => 'N/A',
             'average_5min' => 'N/A',

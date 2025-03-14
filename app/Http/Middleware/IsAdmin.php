@@ -8,12 +8,19 @@ use Illuminate\Support\Facades\Auth;
 
 class IsAdmin
 {
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return mixed
+     */
     public function handle(Request $request, Closure $next)
     {
         if (Auth::check() && Auth::user()->role === 'admin') {
             return $next($request);
         }
 
-        abort(403, 'Unauthorized action.');
+        abort(403, 'Unauthorized action. Admin privileges required.');
     }
 }

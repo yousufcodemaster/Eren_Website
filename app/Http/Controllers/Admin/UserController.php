@@ -45,13 +45,13 @@ class UserController extends Controller
             
             $users = $query->orderBy('created_at', 'desc')->paginate(15);
             
-            return view('admin.users', compact('users'));
+            return view('admin.users.index', compact('users'));
         } catch (\Exception $e) {
             // Log the error
             \Log::error('Error in user index: ' . $e->getMessage());
             
             // Return view with empty data
-            return view('admin.users', [
+            return view('admin.users.index', [
                 'users' => collect(),
                 'error' => 'Could not retrieve users. Please ensure the database is properly set up.'
             ]);

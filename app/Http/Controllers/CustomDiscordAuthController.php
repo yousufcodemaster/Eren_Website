@@ -7,19 +7,25 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class CustomDiscordAuthController extends Controller
 {
     protected $client_id;
     protected $client_secret;
     protected $redirect_uri;
-    protected $discord_api_url = 'https://discord.com/api';
+    protected $server_id;
+    protected $discord_api_url;
+    protected $discord_roles;
 
     public function __construct()
     {
-        $this->client_id = config('services.discord.client_id');
-        $this->client_secret = config('services.discord.client_secret');
-        $this->redirect_uri = config('services.discord.redirect');
+        $this->client_id = config('discord.client_id');
+        $this->client_secret = config('discord.client_secret');
+        $this->redirect_uri = config('discord.redirect_uri');
+        $this->server_id = config('discord.server_id');
+        $this->discord_api_url = config('discord.api_base_url');
+        $this->discord_roles = config('discord.roles');
     }
 
     public function redirect()
@@ -31,7 +37,7 @@ class CustomDiscordAuthController extends Controller
             'client_id' => $this->client_id,
             'redirect_uri' => $this->redirect_uri,
             'response_type' => 'code',
-            'scope' => 'identify email',
+            'scope' => 'identify email guilds.members.read',
             'state' => $state,
         ]);
 
@@ -81,6 +87,49 @@ class CustomDiscordAuthController extends Controller
 
         $discordUser = $userResponse->json();
         
+        // Get user's guild membership details
+        $guildMemberResponse = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $tokens['access_token']
+        ])->get($this->discord_api_url . '/users/@me/guilds/' . $this->server_id . '/member');
+        
+        // Initialize user roles
+        $userRoles = [];
+        $premiumType = null;
+        $isAdmin = false;
+        
+        // Process guild membership if successful
+        if ($guildMemberResponse->successful()) {
+            $guildMember = $guildMemberResponse->json();
+            
+            if (isset($guildMember['roles'])) {
+                $userRoles = $guildMember['roles'];
+                
+                // Check for admin role
+                if (in_array($this->discord_roles['admin'], $userRoles)) {
+                    $isAdmin = true;
+                }
+                
+                // Determine premium type
+                if (in_array($this->discord_roles['premium'], $userRoles)) {
+                    $premiumType = 'All';
+                } elseif (in_array($this->discord_roles['external'], $userRoles)) {
+                    $premiumType = 'External';
+                } elseif (in_array($this->discord_roles['streamer'], $userRoles)) {
+                    $premiumType = 'Streamer';
+                } elseif (in_array($this->discord_roles['bypass'], $userRoles)) {
+                    $premiumType = 'Bypass';
+                } elseif (in_array($this->discord_roles['reseller'], $userRoles)) {
+                    $premiumType = 'Reseller';
+                }
+            }
+        } else {
+            Log::warning('Could not fetch guild membership details for user', [
+                'user_id' => $discordUser['id'],
+                'guild_id' => $this->server_id,
+                'response' => $guildMemberResponse->body()
+            ]);
+        }
+        
         // Find or create user
         $user = User::where('discord_id', $discordUser['id'])->first();
         
@@ -92,14 +141,21 @@ class CustomDiscordAuthController extends Controller
                 'password' => bcrypt(Str::random(16)),
                 'discord_id' => $discordUser['id'],
                 'discord_username' => $discordUser['username'],
-                'discord_avatar' => $discordUser['avatar'],
+                'discord_avatar' => isset($discordUser['avatar']) ? 'https://cdn.discordapp.com/avatars/' . $discordUser['id'] . '/' . $discordUser['avatar'] . '.png' : null,
                 'email_verified_at' => now(),
+                'role' => $isAdmin ? 'admin' : 'user',
+                'premium_type' => $premiumType,
+                'is_reseller' => $premiumType === 'Reseller',
+                'max_clients' => $premiumType === 'Reseller' ? 10 : 0,
             ]);
         } else {
             // Update existing user with latest Discord info
             $user->update([
                 'discord_username' => $discordUser['username'],
-                'discord_avatar' => $discordUser['avatar'],
+                'discord_avatar' => isset($discordUser['avatar']) ? 'https://cdn.discordapp.com/avatars/' . $discordUser['id'] . '/' . $discordUser['avatar'] . '.png' : null,
+                'role' => $isAdmin ? 'admin' : $user->role,
+                'premium_type' => $premiumType !== null ? $premiumType : $user->premium_type,
+                'is_reseller' => $premiumType === 'Reseller' ? true : ($user->premium_type === 'Reseller'),
             ]);
         }
 

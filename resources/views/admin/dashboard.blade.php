@@ -32,7 +32,7 @@
                     </div>
                 </div>
                 <div class="mt-4">
-                    <a href="{{ route('admin.users') }}" class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">View all users &rarr;</a>
+                    <a href="{{ route('admin.users.index') }}" class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">View all users &rarr;</a>
                 </div>
             </div>
         </div>
@@ -57,7 +57,7 @@
                     </div>
                 </div>
                 <div class="mt-4">
-                    <a href="{{ route('admin.users') }}?premium_type=All" class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">View premium users &rarr;</a>
+                    <a href="{{ route('admin.users.index') }}?premium_type=All" class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">View premium users &rarr;</a>
                 </div>
             </div>
         </div>
@@ -82,7 +82,7 @@
                     </div>
                 </div>
                 <div class="mt-4">
-                    <a href="{{ route('admin.reseller-management') }}" class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">Manage resellers &rarr;</a>
+                    <a href="{{ route('admin.resellers.management') }}" class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">Manage resellers &rarr;</a>
                 </div>
             </div>
         </div>
@@ -98,13 +98,13 @@
                         </svg>
                         Add New User
                     </a>
-                    <a href="{{ route('admin.panel-upload') }}" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">
+                    <a href="{{ route('admin.panel-upload.index') }}" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">
                         <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                         </svg>
                         Upload Panel File
                     </a>
-                    <a href="{{ route('admin.reseller-analytics') }}" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">
+                    <a href="{{ route('admin.resellers.analytics') }}" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">
                         <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
@@ -208,7 +208,7 @@
                                             {{ $user->created_at->diffForHumans() }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="{{ route('admin.users') }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">View</a>
+                                            <a href="{{ route('admin.users.index') }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">View</a>
                                         </td>
                                     </tr>
                                     @endforeach

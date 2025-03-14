@@ -7,6 +7,10 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\PanelPasswordController;
 use App\Http\Controllers\ResellerClientController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\ResellerManagementController;
+use App\Http\Controllers\Admin\PanelUploadController;
+use App\Http\Controllers\Admin\ResellerController;
 use App\Http\Controllers\DiscordAuthController;
 use App\Http\Controllers\SetDiscordUsernameController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -72,33 +76,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return view('others-dashboard');
         })->name('dashboard');
     });
-
-    // Admin Routes with Panel Password Protection
-    Route::middleware(['isAdmin', 'panel.password'])->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-        
-        // User Management
-        Route::resource('users', UserController::class);
-        
-        // Reseller Management
-        Route::get('/resellers', [UserController::class, 'resellerManagement'])->name('resellers.management');
-        Route::get('/resellers/analytics', [UserController::class, 'resellerAnalytics'])->name('resellers.analytics');
-        Route::get('/resellers/{reseller}', [App\Http\Controllers\Admin\ResellerController::class, 'show'])->name('resellers.show');
-        Route::put('/resellers/{reseller}/update-limit', [App\Http\Controllers\Admin\ResellerController::class, 'updateClientLimit'])->name('resellers.update-limit');
-        Route::delete('/resellers/{reseller}/clients/{clientId}', [App\Http\Controllers\Admin\ResellerController::class, 'removeClient'])->name('resellers.remove-client');
-        
-        // Download Management
-        Route::get('/downloads', [AdminController::class, 'manageDownloads'])->name('downloads.manage');
-        Route::get('/downloads/{download}/edit', [AdminController::class, 'editDownload'])->name('downloads.edit');
-        Route::post('/downloads', [AdminController::class, 'storeDownload'])->name('downloads.store');
-        Route::put('/downloads/{download}', [AdminController::class, 'updateDownload'])->name('downloads.update');
-        Route::delete('/downloads/{download}', [AdminController::class, 'destroyDownload'])->name('downloads.delete');
-    });
 });
 
 // Discord Authentication Routes
-Route::get('/auth/discord', [DiscordAuthController::class, 'redirect'])->name('discord.login');
-Route::get('/auth/discord/callback', [DiscordAuthController::class, 'callback'])->name('discord.callback');
+Route::get('/auth/discord', [CustomDiscordAuthController::class, 'redirect'])->name('discord.login');
+Route::get('/auth/discord/callback', [CustomDiscordAuthController::class, 'callback'])->name('discord.callback');
 
 // Discord Username Setting Routes
 Route::get('/auth/discord/set-username', [SetDiscordUsernameController::class, 'show'])
@@ -108,29 +90,41 @@ Route::post('/auth/discord/set-username', [SetDiscordUsernameController::class, 
     ->name('discord.username.store')
     ->middleware('auth');
 
-// Admin Routes
+// Admin Routes - Consolidated into a single route group
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
-    Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     
     // User Management
-    Route::resource('users', App\Http\Controllers\Admin\UserManagementController::class);
-    Route::post('users/{user}/toggle-active', [App\Http\Controllers\Admin\UserManagementController::class, 'toggleActive'])->name('users.toggle-active');
-    Route::get('users/{user}/activity', [App\Http\Controllers\Admin\UserManagementController::class, 'activity'])->name('users.activity');
-    Route::get('users/{user}/subscription', [App\Http\Controllers\Admin\UserManagementController::class, 'subscription'])->name('users.subscription');
-    Route::put('users/{user}/subscription', [App\Http\Controllers\Admin\UserManagementController::class, 'updateSubscription'])->name('users.update-subscription');
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::resource('users', UserManagementController::class)->except(['index']);
+    Route::post('users/{user}/toggle-active', [UserManagementController::class, 'toggleActive'])->name('users.toggle-active');
+    Route::get('users/{user}/activity', [UserManagementController::class, 'activity'])->name('users.activity');
+    Route::get('users/{user}/subscription', [UserManagementController::class, 'subscription'])->name('users.subscription');
+    Route::put('users/{user}/subscription', [UserManagementController::class, 'updateSubscription'])->name('users.update-subscription');
     
     // Reseller Management
-    Route::resource('resellers', App\Http\Controllers\Admin\ResellerManagementController::class);
-    Route::get('resellers/{reseller}/clients', [App\Http\Controllers\Admin\ResellerManagementController::class, 'clients'])->name('resellers.clients');
-    Route::put('resellers/{reseller}/client-limit', [App\Http\Controllers\Admin\ResellerManagementController::class, 'updateClientLimit'])->name('resellers.update-client-limit');
-    Route::get('resellers/analytics', [App\Http\Controllers\Admin\ResellerManagementController::class, 'analytics'])->name('resellers.analytics');
+    Route::get('/resellers', [UserController::class, 'resellerManagement'])->name('resellers.management');
+    Route::get('/resellers/analytics', [UserController::class, 'resellerAnalytics'])->name('resellers.analytics');
+    Route::resource('resellers', ResellerManagementController::class)->except(['index']);
+    Route::get('resellers/{reseller}/clients', [ResellerManagementController::class, 'clients'])->name('resellers.clients');
+    Route::put('resellers/{reseller}/client-limit', [ResellerManagementController::class, 'updateClientLimit'])->name('resellers.update-client-limit');
+    Route::get('resellers/{reseller}', [ResellerController::class, 'show'])->name('resellers.show');
+    Route::put('resellers/{reseller}/update-limit', [ResellerController::class, 'updateClientLimit'])->name('resellers.update-limit');
+    Route::delete('resellers/{reseller}/clients/{clientId}', [ResellerController::class, 'removeClient'])->name('resellers.remove-client');
     
     // Panel Upload Management
-    Route::resource('panel-upload', App\Http\Controllers\Admin\PanelUploadController::class);
-    Route::post('panel-upload/{download}/toggle-active', [App\Http\Controllers\Admin\PanelUploadController::class, 'toggleActive'])->name('panel-upload.toggle-active');
-    Route::get('panel-upload/{download}/download', [App\Http\Controllers\Admin\PanelUploadController::class, 'download'])->name('panel-upload.download');
-    Route::get('panel-upload/statistics', [App\Http\Controllers\Admin\PanelUploadController::class, 'statistics'])->name('panel-upload.statistics');
+    Route::resource('panel-upload', PanelUploadController::class);
+    Route::post('panel-upload/{download}/toggle-active', [PanelUploadController::class, 'toggleActive'])->name('panel-upload.toggle-active');
+    Route::get('panel-upload/{download}/download', [PanelUploadController::class, 'download'])->name('panel-upload.download');
+    Route::get('panel-upload/statistics', [PanelUploadController::class, 'statistics'])->name('panel-upload.statistics');
+    
+    // Download Management
+    Route::get('/downloads', [AdminController::class, 'manageDownloads'])->name('downloads.manage');
+    Route::get('/downloads/{download}/edit', [AdminController::class, 'editDownload'])->name('downloads.edit');
+    Route::post('/downloads', [AdminController::class, 'storeDownload'])->name('downloads.store');
+    Route::put('/downloads/{download}', [AdminController::class, 'updateDownload'])->name('downloads.update');
+    Route::delete('/downloads/{download}', [AdminController::class, 'destroyDownload'])->name('downloads.delete');
 });
 
 // Include Authentication Routes
