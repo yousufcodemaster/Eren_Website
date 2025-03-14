@@ -8,6 +8,7 @@ use App\Models\ResellerClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Activity;
 
 class ResellerManagementController extends Controller
 {
@@ -263,10 +264,19 @@ class ResellerManagementController extends Controller
         }
 
         $validated = $request->validate([
-            'max_clients' => ['required', 'integer', 'min:' . $reseller->clients()->count(), 'max:100'],
+            'max_clients' => ['nullable', 'integer', 'min:' . $reseller->clients()->count(), 'max:100'],
         ]);
 
-        $reseller->update($validated);
+        // Update the max_clients field
+        $reseller->max_clients = $request->filled('max_clients') ? $validated['max_clients'] : null;
+        $reseller->save();
+
+        // Log the action
+        activity()
+            ->performedOn($reseller)
+            ->causedBy(auth()->user())
+            ->withProperties(['max_clients' => $reseller->max_clients])
+            ->log('Updated reseller client limit');
 
         return back()->with('success', 'Reseller client limit updated successfully.');
     }

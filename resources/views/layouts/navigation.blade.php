@@ -25,6 +25,12 @@
                             {{ __('Reseller Dashboard') }}
                         </x-nav-link>
                     @endif
+
+                    @if(Auth::check() && Auth::user()->role === 'admin')
+                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
+                            {{ __('Admin Dashboard') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -73,7 +79,42 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        
+                        <!-- Theme Toggle -->
+                        <div class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
+                            <div class="flex items-center justify-between">
+                                <span>Theme</span>
+                                <div class="flex items-center space-x-2">
+                                    <!-- Light Mode -->
+                                    <button @click="darkMode = 'light'; localStorage.setItem('darkMode', 'light')" 
+                                        class="p-1.5 rounded-md" 
+                                        :class="{ 'bg-gray-200 dark:bg-gray-700': darkMode === 'light' }">
+                                        <svg class="h-5 w-5 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                        </svg>
+                                    </button>
+                                    
+                                    <!-- System Mode -->
+                                    <button @click="darkMode = 'system'; localStorage.setItem('darkMode', 'system')" 
+                                        class="p-1.5 rounded-md" 
+                                        :class="{ 'bg-gray-200 dark:bg-gray-700': darkMode === 'system' }">
+                                        <svg class="h-5 w-5 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                        </svg>
+                                    </button>
+                                    
+                                    <!-- Dark Mode -->
+                                    <button @click="darkMode = 'dark'; localStorage.setItem('darkMode', 'dark')" 
+                                        class="p-1.5 rounded-md" 
+                                        :class="{ 'bg-gray-200 dark:bg-gray-700': darkMode === 'dark' }">
+                                        <svg class="h-5 w-5 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-gray-200 dark:border-gray-600"></div>
 
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
@@ -117,6 +158,12 @@
                     {{ __('Reseller Dashboard') }}
                 </x-responsive-nav-link>
             @endif
+            
+            @if(Auth::check() && Auth::user()->role === 'admin')
+                <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
+                    {{ __('Admin Dashboard') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
@@ -158,7 +205,40 @@
             </div>
 
             <div class="mt-3 space-y-1">
-                
+                <!-- Theme Toggle -->
+                <div class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-600 pb-2 mb-2">
+                    <div class="flex items-center justify-between">
+                        <span>Theme</span>
+                        <div class="flex items-center space-x-3">
+                            <!-- Light Mode -->
+                            <button @click="darkMode = 'light'; localStorage.setItem('darkMode', 'light')" 
+                                class="p-1.5 rounded-md" 
+                                :class="{ 'bg-gray-200 dark:bg-gray-700': darkMode === 'light' }">
+                                <svg class="h-5 w-5 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                            </button>
+                            
+                            <!-- System Mode -->
+                            <button @click="darkMode = 'system'; localStorage.setItem('darkMode', 'system')" 
+                                class="p-1.5 rounded-md" 
+                                :class="{ 'bg-gray-200 dark:bg-gray-700': darkMode === 'system' }">
+                                <svg class="h-5 w-5 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                            </button>
+                            
+                            <!-- Dark Mode -->
+                            <button @click="darkMode = 'dark'; localStorage.setItem('darkMode', 'dark')" 
+                                class="p-1.5 rounded-md" 
+                                :class="{ 'bg-gray-200 dark:bg-gray-700': darkMode === 'dark' }">
+                                <svg class="h-5 w-5 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">

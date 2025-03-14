@@ -120,6 +120,28 @@ class UserController extends Controller
         $resellersQuery = User::where('premium_type', 'Reseller')
                           ->where('is_reseller', true);
         
+        // Calculate total resellers
+        $totalResellers = User::where('premium_type', 'Reseller')
+                          ->where('is_reseller', true)
+                          ->count();
+        
+        // Calculate total clients across all resellers
+        $totalClients = \App\Models\ResellerClient::count();
+        
+        // Calculate average clients per reseller
+        $averageClientsPerReseller = $totalResellers > 0 ? round($totalClients / $totalResellers, 1) : 0;
+        
+        // Get new clients in the last 30 days
+        $newClients = \App\Models\ResellerClient::where('created_at', '>=', now()->subDays(30))->count();
+        
+        // Get top resellers by client count
+        $topResellers = User::where('premium_type', 'Reseller')
+                        ->where('is_reseller', true)
+                        ->withCount('clients')
+                        ->orderBy('clients_count', 'desc')
+                        ->take(5)
+                        ->get();
+        
         // Apply filters if provided
         if ($request->has('search')) {
             $search = $request->search;
@@ -137,7 +159,14 @@ class UserController extends Controller
         // Get paginated results with client relationship
         $resellers = $resellersQuery->with('clients')->paginate(10);
         
-        return view('admin.reseller-management', compact('resellers'));
+        return view('admin.reseller-management', compact(
+            'resellers', 
+            'totalResellers', 
+            'totalClients',
+            'averageClientsPerReseller',
+            'newClients',
+            'topResellers'
+        ));
     }
     
     /**

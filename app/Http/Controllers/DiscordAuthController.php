@@ -12,16 +12,16 @@ class DiscordAuthController extends Controller
 {
     // Discord Role IDs
     protected $roleIds = [
-        'admin' => '1348977595580026880',
-        'premium' => '1348987964637708368',
-        'external' => '1348988317441589290',
-        'streamer' => '1348988483653472327',
-        'bypass' => '1348988558240776304',
-        'reseller' => '1348988660930052128',
+        'admin' => '1259259186504663153',
+        'premium' => '1349786444608049162',
+        'external' => '1349785117882716170',
+        'streamer' => '1349792807702761543',
+        'bypass' => '1349785173163774062',
+        'reseller' => '1349785211302449152',
     ];
 
     // Guild ID
-    protected $guildId = '823837742391492609';
+    protected $guildId = '1249080621364543571';
 
     /**
      * Redirect the user to the Discord authentication page.

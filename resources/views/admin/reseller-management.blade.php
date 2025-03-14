@@ -234,7 +234,7 @@
     function updateClientLimit(id, currentLimit, name) {
         document.getElementById('reseller-name').textContent = name;
         document.getElementById('max_clients').value = currentLimit !== null ? currentLimit : '';
-        document.getElementById('clientLimitForm').action = `/admin/resellers/${id}/update-client-limit`;
+        document.getElementById('clientLimitForm').action = "{{ url('/admin/resellers') }}/" + id + "/client-limit";
         document.getElementById('clientLimitModal').classList.remove('hidden');
     }
 

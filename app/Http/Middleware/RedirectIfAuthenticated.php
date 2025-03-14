@@ -30,11 +30,10 @@ class RedirectIfAuthenticated
                     return redirect()->route('admin.dashboard');
                 }
                 
-                // Add other role-based redirects if needed
-                // For example:
-                // if ($user->is_reseller) {
-                //     return redirect()->route('reseller.dashboard');
-                // }
+                // Redirect resellers to reseller dashboard
+                if ($user->is_reseller) {
+                    return redirect()->route('reseller.dashboard');
+                }
                 
                 return redirect()->route('dashboard');
             }

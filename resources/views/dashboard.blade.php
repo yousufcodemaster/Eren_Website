@@ -15,9 +15,60 @@
                     </p>
                 </div>
                 <div class="mt-4 flex md:mt-0 md:ml-4">
-                    <span class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white {{ Auth::user()->premium_type === 'Streamer' ? 'bg-purple-600' : (Auth::user()->premium_type === 'External' ? 'bg-blue-600' : (Auth::user()->premium_type === 'Bypass' ? 'bg-green-600' : 'bg-red-600')) }}">
+                    <span class="mr-2 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white {{ Auth::user()->premium_type === 'Streamer' ? 'bg-purple-600' : (Auth::user()->premium_type === 'External' ? 'bg-blue-600' : (Auth::user()->premium_type === 'Bypass' ? 'bg-green-600' : 'bg-red-600')) }}">
                         {{ Auth::user()->premium_type }} Plan
                     </span>
+
+                    <!-- Theme Toggle Button -->
+                    <div class="inline-flex rounded-md shadow-sm">
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" type="button" class="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-800">
+                                <svg x-show="darkMode === 'light'" class="h-5 w-5 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                                <svg x-show="darkMode === 'dark'" class="h-5 w-5 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                                </svg>
+                                <svg x-show="darkMode === 'system'" class="h-5 w-5 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                <span class="ml-1.5">Theme</span>
+                                <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                            <div x-show="open" @click.away="open = false" 
+                                class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-10 border border-gray-200 dark:border-gray-700" 
+                                x-transition:enter="transition ease-out duration-100" 
+                                x-transition:enter-start="transform opacity-0 scale-95" 
+                                x-transition:enter-end="transform opacity-100 scale-100" 
+                                x-transition:leave="transition ease-in duration-75" 
+                                x-transition:leave-start="transform opacity-100 scale-100" 
+                                x-transition:leave-end="transform opacity-0 scale-95">
+                                <button @click="darkMode = 'light'; localStorage.setItem('darkMode', 'light'); open = false" 
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center">
+                                    <svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                    Light Mode
+                                </button>
+                                <button @click="darkMode = 'dark'; localStorage.setItem('darkMode', 'dark'); open = false" 
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center">
+                                    <svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                                    </svg>
+                                    Dark Mode
+                                </button>
+                                <button @click="darkMode = 'system'; localStorage.setItem('darkMode', 'system'); open = false" 
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center">
+                                    <svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                    System Preference
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -64,6 +115,28 @@
                     </div>
                 </div>
             </a>
+            
+            @if(Auth::user()->is_reseller)
+            <!-- Reseller Dashboard Button - Only visible to resellers -->
+            <a href="{{ route('reseller.dashboard') }}" class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition border-l-4 border-red-500">
+                <div class="p-6 flex items-center">
+                    <div class="flex-shrink-0 p-3 bg-red-100 dark:bg-red-900 rounded-full">
+                        <svg class="h-8 w-8 text-red-600 dark:text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                    </div>
+                    <div class="ml-5">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Reseller Dashboard</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Manage your clients and view reseller analytics</p>
+                    </div>
+                    <div class="ml-auto">
+                        <svg class="h-6 w-6 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </div>
+                </div>
+            </a>
+            @endif
         </div>
 
         <!-- Account Status -->

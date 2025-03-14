@@ -35,15 +35,16 @@ class AuthenticatedSessionController extends Controller
 
         // Redirect based on user role
         if ($user->role === 'admin') {
-            return redirect()->intended(route('admin.dashboard')); // Changed to use intended with admin dashboard
+            return redirect()->intended(route('admin.dashboard'));
         }
 
-        // Handle other roles if needed
+        // Check if user is a reseller and redirect to reseller dashboard
         if ($user->is_reseller) {
             return redirect()->intended(route('reseller.dashboard'));
         }
 
-        return redirect()->intended(route('dashboard')); // Use intended for normal users too
+        // Default redirect for regular users
+        return redirect()->intended(route('dashboard'));
     }
 
     /**

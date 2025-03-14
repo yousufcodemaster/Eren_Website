@@ -16,7 +16,7 @@ class ResellerController extends Controller
     {
         // Validate request
         $validated = $request->validate([
-            'max_clients' => 'required|integer|min:0|max:100',
+            'max_clients' => 'nullable|integer|min:0|max:100',
         ]);
 
         // Check if the user is a reseller
@@ -25,14 +25,14 @@ class ResellerController extends Controller
         }
 
         // Update the max_clients field
-        $reseller->max_clients = $validated['max_clients'];
+        $reseller->max_clients = $request->filled('max_clients') ? $validated['max_clients'] : null;
         $reseller->save();
 
         // Log the action
         activity()
             ->performedOn($reseller)
             ->causedBy(auth()->user())
-            ->withProperties(['max_clients' => $validated['max_clients']])
+            ->withProperties(['max_clients' => $reseller->max_clients])
             ->log('Updated reseller client limit');
 
         return redirect()->back()->with('success', 'Reseller client limit updated successfully.');
